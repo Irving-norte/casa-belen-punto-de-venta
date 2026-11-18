@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { TecladoMonto, textoACentavos } from '../componentes/TecladoMonto'
-import { botonPrimario, tarjeta } from '../componentes/estilos'
+import { botonPrimario, tarjeta, textoError } from '../componentes/estilos'
 import { abrirCaja } from '../lib/db/caja.repo'
 import { useUltimaCajaCerrada } from '../lib/hooks/useCaja'
 import { formatear } from '../lib/dominio/dinero'
@@ -40,7 +40,7 @@ export default function Apertura() {
           }}
           etiqueta="Fondo inicial"
         />
-        {error && <p className="mt-3 text-sm text-peligro">{error}</p>}
+        {error && <p className={`mt-3 ${textoError}`} role="alert">{error}</p>}
         <button type="button" onClick={abrir} className={`${botonPrimario} mt-4 w-full`}>
           Abrir caja
         </button>

@@ -2,7 +2,15 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Modal } from '../componentes/Modal'
 import { TecladoMonto, textoACentavos } from '../componentes/TecladoMonto'
-import { botonPrimario, botonSecundario, tarjeta } from '../componentes/estilos'
+import {
+  botonPrimario,
+  botonSecundario,
+  mensajeAviso,
+  mensajeError,
+  mensajeExito,
+  tarjeta,
+  textoError,
+} from '../componentes/estilos'
 import type { Caja, Corte as DatosCorte } from '../lib/dominio/tipos'
 import { formatear } from '../lib/dominio/dinero'
 import { calcularCorte } from '../lib/dominio/corte'
@@ -37,12 +45,12 @@ export default function Corte({ caja }: { caja: Caja }) {
   return (
     <div className="mx-auto grid h-full max-w-5xl gap-4 overflow-y-auto p-4 md:grid-cols-2">
       <section className={tarjeta}>
-        <h1 className="mb-4 text-lg font-medium">Corte de caja</h1>
+        <h1 className="mb-4 text-lg font-semibold">Corte de caja</h1>
         <ResumenCorte fondoInicial={caja.fondoInicial} corte={corte} />
       </section>
 
       <section className={`${tarjeta} space-y-3`}>
-        <h2 className="text-lg font-medium">Cuenta el efectivo</h2>
+        <h2 className="text-lg font-semibold">Cuenta el efectivo</h2>
         <p className="text-sm text-barro">
           Cuenta los billetes y monedas de la caja y escribe el total.
         </p>
@@ -55,7 +63,7 @@ export default function Corte({ caja }: { caja: Caja }) {
           etiqueta="Efectivo contado"
         />
         {centavosContados != null && <Diferencia diferencia={corte.diferencia} />}
-        {error && <p className="text-sm text-peligro">{error}</p>}
+        {error && <p className={textoError} role="alert">{error}</p>}
         <button
           type="button"
           disabled={centavosContados == null}
@@ -72,7 +80,7 @@ export default function Corte({ caja }: { caja: Caja }) {
             <p>Después de cerrar ya no se pueden registrar ventas ni gastos en esta caja.</p>
             <Diferencia diferencia={corte.diferencia} />
             {ventaEnCurso.lineas.length > 0 && (
-              <p className="rounded-xl bg-ambar/20 px-3 py-2">
+              <p className={mensajeAviso}>
                 Hay una venta sin cobrar con {ventaEnCurso.lineas.length} producto(s). Se conservará
                 para la siguiente caja.
               </p>
@@ -94,16 +102,15 @@ export default function Corte({ caja }: { caja: Caja }) {
 
 function Diferencia({ diferencia }: { diferencia: number }) {
   if (diferencia === 0) {
-    return <p className="rounded-xl bg-salvia/15 px-4 py-3 text-sm">La caja cuadra exacto.</p>
+    return (
+      <p className={mensajeExito} data-testid="diferencia">
+        La caja cuadra exacto.
+      </p>
+    )
   }
   const sobra = diferencia > 0
   return (
-    <p
-      className={
-        'rounded-xl px-4 py-3 text-sm ' + (sobra ? 'bg-ambar/20' : 'bg-peligro/10 text-peligro')
-      }
-      data-testid="diferencia"
-    >
+    <p className={sobra ? mensajeAviso : mensajeError} data-testid="diferencia">
       {sobra ? 'Sobran' : 'Faltan'} <strong>{formatear(Math.abs(diferencia))}</strong>
     </p>
   )
@@ -130,8 +137,8 @@ export function ResumenCorte({ fondoInicial, corte }: { fondoInicial: number; co
 function Renglon({ etiqueta, valor, fuerte }: { etiqueta: string; valor: string; fuerte?: boolean }) {
   return (
     <div className="flex justify-between gap-4">
-      <dt className={fuerte ? 'font-medium' : 'text-barro'}>{etiqueta}</dt>
-      <dd className={(fuerte ? 'font-medium' : '') + ' tabular-nums'}>{valor}</dd>
+      <dt className={fuerte ? 'font-semibold' : 'text-barro'}>{etiqueta}</dt>
+      <dd className={(fuerte ? 'font-semibold' : '') + ' tabular-nums'}>{valor}</dd>
     </div>
   )
 }

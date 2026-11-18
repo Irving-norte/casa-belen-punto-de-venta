@@ -1,17 +1,56 @@
 @import "tailwindcss";
 
-/* Paleta de marca de Casa Belén (la misma de la tienda en línea). */
+/*
+ * Paleta del punto de venta (aprobada 2026-11-18).
+ * Lienzo de referencia: https://claude.ai/artifact/3XUhjiga7yN3PwGWwhTgtw
+ *
+ * Cada color tiene un trabajo:
+ *  - terracota → acción principal (cobrar, abrir caja, registrar) y precios
+ *  - salvia    → lo elegido (categoría, General/Alumno, forma de pago) y éxito
+ *  - neutros   → fondos, superficies, bordes y texto
+ *  - ámbar     → aviso (solo de fondo; como texto no se lee)
+ *  - peligro   → error y acciones que borran
+ *
+ * Contraste medido sobre vela/cera (WCAG AA: texto 4.5:1, controles 3:1).
+ * Los 500 de terracota y salvia son los colores de marca: se usan en
+ * indicadores, foco e íconos, no como fondo de texto pequeño.
+ */
 @theme {
-  --color-cera: #FAF6EF;
-  --color-manteca: #F2EAD8;
-  --color-espresso: #2C1810;
-  --color-terracota: #C4622D;
-  --color-ambar: #C8983F;
-  --color-salvia: #7A8C6E;
-  --color-barro: #6B5B4E;
-  --color-vela: #FDFAF5;
-  --color-linea: #E4D9C4;
-  --color-peligro: #A63D2F;
+  /* Neutros cálidos */
+  --color-vela: #FDFAF5;     /* tarjetas y paneles */
+  --color-cera: #FAF6EF;     /* fondo de la app */
+  --color-manteca: #F2EAD8;  /* relleno sutil, hover neutro, teclas */
+  --color-linea: #E4D9C4;    /* divisores decorativos, hover de teclas */
+  --color-linea-fuerte: #D9CCB4; /* tecla presionada */
+  --color-arena: #998670;    /* borde de campos (3.4:1) */
+  --color-ceniza: #A3958A;   /* texto deshabilitado */
+  --color-barro: #6B5B4E;    /* texto secundario (6.0:1) */
+  --color-espresso: #2C1810; /* texto principal (16:1) */
+
+  /* Terracota: acción principal */
+  --color-terracota-50: #FBF0E8;  /* tarjeta presionada */
+  --color-terracota-100: #F6DDCC; /* halo de foco en campos */
+  --color-terracota-500: #C4622D; /* marca: indicador y anillo de foco */
+  --color-terracota-600: #A9511F; /* botón primario y precios (5.2:1) */
+  --color-terracota-700: #8E431A; /* hover y enlaces (6.8:1) */
+  --color-terracota-800: #733615; /* presionado (8.9:1) */
+
+  /* Salvia: selección y éxito */
+  --color-salvia-100: #E3E9DD; /* fondo de éxito */
+  --color-salvia-500: #7A8C6E; /* marca: íconos e indicadores */
+  --color-salvia-600: #5F7154; /* opción seleccionada (5.1:1) */
+  --color-salvia-700: #4C5A43; /* hover de seleccionada (7.1:1) */
+  --color-salvia-800: #3A4533; /* texto de éxito (8.2:1) */
+
+  /* Ámbar: aviso */
+  --color-ambar-100: #F7EACB; /* fondo de aviso */
+  --color-ambar-500: #C8983F; /* solo decorativo */
+  --color-ambar-800: #6B4C14; /* texto de aviso (6.6:1) */
+
+  /* Peligro: error y borrar */
+  --color-peligro-50: #FBEAE6;  /* fondo de error, hover de "Quitar" */
+  --color-peligro-600: #A63D2F; /* texto y botón de borrar (6.1:1) */
+  --color-peligro-700: #87301F; /* hover/presionado de borrar (8.2:1) */
 }
 
 html, body, #root {
@@ -24,6 +63,16 @@ body {
   font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   -webkit-tap-highlight-color: transparent;
   overscroll-behavior-y: none;
+}
+
+/* Un solo anillo de foco para todos los controles (teclado o lector).
+   En la capa base para que un componente pueda reemplazarlo (los campos
+   usan borde + halo en su lugar). */
+@layer base {
+  :focus-visible {
+    outline: 2px solid var(--color-terracota-500);
+    outline-offset: 2px;
+  }
 }
 
 /* Sin el retraso de ~300 ms por doble toque, y sin seleccionar texto por
