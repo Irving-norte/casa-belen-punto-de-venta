@@ -1,7 +1,17 @@
 import { useState } from 'react'
 import { Navigate, useNavigate } from 'react-router-dom'
 import { TecladoMonto, textoACentavos } from '../componentes/TecladoMonto'
-import { botonPrimario, botonSecundario, campoTexto, tarjeta } from '../componentes/estilos'
+import {
+  botonPrimario,
+  botonSecundario,
+  campoTexto,
+  enlace,
+  enlacePeligro,
+  mensajeExito,
+  opcion,
+  tarjeta,
+  textoError,
+} from '../componentes/estilos'
 import type { FormaPago } from '../lib/dominio/tipos'
 import { formatear } from '../lib/dominio/dinero'
 import { subtotal } from '../lib/dominio/carrito'
@@ -88,8 +98,8 @@ export default function Cobrar() {
       {/* ---------- Resumen ---------- */}
       <section className={`${tarjeta} flex min-h-0 flex-col`}>
         <div className="mb-3 flex items-center justify-between">
-          <h1 className="text-lg font-medium">Cobrar</h1>
-          <button type="button" onClick={() => navegar('/')} className="text-sm text-terracota">
+          <h1 className="text-lg font-semibold">Cobrar</h1>
+          <button type="button" onClick={() => navegar('/')} className={enlace}>
             ← Volver a la venta
           </button>
         </div>
@@ -117,7 +127,7 @@ export default function Cobrar() {
                 <button
                   type="button"
                   onClick={() => setCobro(quitarPago(cobro, i))}
-                  className="ml-3 text-xs text-peligro"
+                  className={`ml-2 ${enlacePeligro}`}
                 >
                   Quitar
                 </button>
@@ -136,12 +146,12 @@ export default function Cobrar() {
             {cobro.cambio > 0 ? (
               <div>
                 <p className="text-sm text-barro">Cambio a entregar</p>
-                <p className="text-5xl font-medium text-terracota tabular-nums" data-testid="cambio">
+                <p className="text-5xl font-semibold text-terracota-600 tabular-nums" data-testid="cambio">
                   {formatear(cobro.cambio)}
                 </p>
               </div>
             ) : (
-              <p className="text-lg">Pago completo</p>
+              <p className={mensajeExito}>Pago completo</p>
             )}
             <button
               type="button"
@@ -151,7 +161,7 @@ export default function Cobrar() {
             >
               Terminar venta
             </button>
-            {error && <p className="text-sm text-peligro">{error}</p>}
+            {error && <p className={textoError} role="alert">{error}</p>}
           </div>
         ) : (
           <div className="space-y-3">
@@ -167,10 +177,7 @@ export default function Cobrar() {
                     setMonto('')
                     setError(null)
                   }}
-                  className={
-                    'rounded-xl py-3 text-sm ' +
-                    (forma === f ? 'bg-espresso font-medium text-vela' : 'border border-linea bg-vela')
-                  }
+                  className={'rounded-xl py-3 text-sm ' + opcion(forma === f)}
                 >
                   {NOMBRE_FORMA[f]}
                 </button>
@@ -196,7 +203,7 @@ export default function Cobrar() {
               />
             )}
 
-            {error && <p className="text-sm text-peligro">{error}</p>}
+            {error && <p className={textoError} role="alert">{error}</p>}
 
             <button type="button" onClick={agregarPago} className={`${botonPrimario} w-full`}>
               Registrar pago en {NOMBRE_FORMA[forma].toLowerCase()}
@@ -219,8 +226,8 @@ export default function Cobrar() {
 function Fila({ etiqueta, valor, grande }: { etiqueta: string; valor: string; grande?: boolean }) {
   return (
     <div className="flex items-baseline justify-between">
-      <span className={grande ? 'font-medium' : 'text-sm text-barro'}>{etiqueta}</span>
-      <span className={(grande ? 'text-2xl font-medium' : 'text-sm') + ' tabular-nums'}>{valor}</span>
+      <span className={grande ? 'font-semibold' : 'text-sm text-barro'}>{etiqueta}</span>
+      <span className={(grande ? 'text-2xl font-semibold' : 'text-sm') + ' tabular-nums'}>{valor}</span>
     </div>
   )
 }

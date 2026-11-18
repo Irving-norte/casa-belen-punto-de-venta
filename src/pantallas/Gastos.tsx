@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { TecladoMonto, textoACentavos } from '../componentes/TecladoMonto'
-import { botonPrimario, campoTexto, tarjeta } from '../componentes/estilos'
+import { atajo, botonPrimario, campoTexto, tarjeta, textoError } from '../componentes/estilos'
 import type { Caja } from '../lib/dominio/tipos'
 import { formatear } from '../lib/dominio/dinero'
 import { registrarGasto } from '../lib/db/caja.repo'
@@ -33,7 +33,7 @@ export default function Gastos({ caja }: { caja: Caja }) {
   return (
     <div className="mx-auto grid h-full max-w-5xl gap-4 overflow-y-auto p-4 md:grid-cols-[420px_1fr]">
       <section className={`${tarjeta} space-y-3`}>
-        <h1 className="text-lg font-medium">Registrar gasto</h1>
+        <h1 className="text-lg font-semibold">Registrar gasto</h1>
         <p className="text-sm text-barro">Dinero que sale de la caja en efectivo.</p>
         <input
           value={concepto}
@@ -51,7 +51,7 @@ export default function Gastos({ caja }: { caja: Caja }) {
               key={c}
               type="button"
               onClick={() => setConcepto(c)}
-              className="rounded-full border border-linea bg-vela px-4 py-1.5 text-sm"
+              className={atajo}
             >
               {c}
             </button>
@@ -72,7 +72,7 @@ export default function Gastos({ caja }: { caja: Caja }) {
           aria-label="Nota"
           className={campoTexto}
         />
-        {error && <p className="text-sm text-peligro">{error}</p>}
+        {error && <p className={textoError} role="alert">{error}</p>}
         <button type="button" onClick={guardar} className={`${botonPrimario} w-full`}>
           Guardar gasto
         </button>
@@ -80,7 +80,7 @@ export default function Gastos({ caja }: { caja: Caja }) {
 
       <section>
         <div className="mb-3 flex items-baseline justify-between">
-          <h2 className="text-lg font-medium">Gastos de hoy</h2>
+          <h2 className="text-lg font-semibold">Gastos de hoy</h2>
           <p className="text-sm text-barro">Total {formatear(total)}</p>
         </div>
         {!gastos || gastos.length === 0 ? (
@@ -94,7 +94,7 @@ export default function Gastos({ caja }: { caja: Caja }) {
                   {g.concepto}
                   {g.nota && <span className="block text-xs text-barro">{g.nota}</span>}
                 </span>
-                <span className="font-medium tabular-nums">{formatear(g.monto)}</span>
+                <span className="font-semibold tabular-nums">{formatear(g.monto)}</span>
               </li>
             ))}
           </ul>

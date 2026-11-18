@@ -1,6 +1,13 @@
 import { useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
-import { botonPrimario, botonSecundario, campoTexto, tarjeta } from '../componentes/estilos'
+import {
+  botonPrimario,
+  botonSecundario,
+  campoTexto,
+  mensajeNeutro,
+  tarjeta,
+  textoError,
+} from '../componentes/estilos'
 import { formatear } from '../lib/dominio/dinero'
 import { enlaceWhatsApp, telefonoValido, textoTicket } from '../lib/dominio/ticket'
 import { marcarTicketEnviado } from '../lib/db/caja.repo'
@@ -38,17 +45,17 @@ export default function Ticket() {
           <p className="text-sm text-barro">
             Venta #{venta.folio} · {formatearHora(venta.creadaEn)}
           </p>
-          <p className="text-3xl font-medium tabular-nums">{formatear(venta.total)}</p>
+          <p className="text-3xl font-semibold tabular-nums">{formatear(venta.total)}</p>
         </div>
 
         {venta.cambio > 0 && (
-          <p className="rounded-xl bg-manteca px-4 py-3">
+          <p className={mensajeNeutro}>
             Cambio entregado: <strong>{formatear(venta.cambio)}</strong>
           </p>
         )}
 
         <div className="space-y-2">
-          <label htmlFor="telefono" className="text-sm font-medium">
+          <label htmlFor="telefono" className="text-sm font-semibold">
             WhatsApp del cliente
           </label>
           <input
@@ -66,13 +73,13 @@ export default function Ticket() {
           <p className="text-xs text-barro">Sin número, WhatsApp te deja elegir el contacto.</p>
         </div>
 
-        {error && <p className="text-sm text-peligro">{error}</p>}
+        {error && <p className={textoError} role="alert">{error}</p>}
 
         <button type="button" onClick={enviar} className={`${botonPrimario} w-full`}>
           {venta.ticketEnviadoEn ? 'Reenviar ticket por WhatsApp' : 'Enviar ticket por WhatsApp'}
         </button>
         {venta.ticketEnviadoEn && (
-          <p className="text-center text-xs text-salvia">Ticket enviado a las {formatearHora(venta.ticketEnviadoEn)}</p>
+          <p className="text-center text-xs font-semibold text-salvia-800">Ticket enviado a las {formatearHora(venta.ticketEnviadoEn)}</p>
         )}
 
         <div className="grid grid-cols-2 gap-2">

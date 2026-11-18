@@ -1,4 +1,5 @@
 import { formatear } from '../lib/dominio/dinero'
+import { atajo } from './estilos'
 
 /**
  * Teclado numérico en pantalla para capturar montos en pesos. Evita que
@@ -37,7 +38,7 @@ export function TecladoMonto({
       <div className="rounded-xl border border-linea bg-vela px-4 py-3 text-right">
         {etiqueta && <p className="text-left text-xs text-barro">{etiqueta}</p>}
         <p className="text-4xl font-medium tabular-nums" data-testid="teclado-display">
-          {valor === '' ? <span className="text-barro/50">$0</span> : formatear(centavos ?? 0)}
+          {valor === '' ? <span className="text-ceniza">$0</span> : formatear(centavos ?? 0)}
         </p>
       </div>
 
@@ -48,7 +49,7 @@ export function TecladoMonto({
               key={a.texto}
               type="button"
               onClick={() => onChange(a.valor)}
-              className="rounded-full border border-linea bg-vela px-4 py-2 text-sm"
+              className={atajo}
             >
               {a.texto}
             </button>
@@ -63,7 +64,7 @@ export function TecladoMonto({
             type="button"
             onClick={() => teclear(t)}
             aria-label={t === 'borrar' ? 'Borrar' : t}
-            className="h-14 rounded-xl bg-manteca text-2xl font-medium active:bg-linea"
+            className="h-14 rounded-xl bg-manteca text-2xl font-medium text-espresso hover:bg-linea active:bg-linea-fuerte"
           >
             {t === 'borrar' ? '⌫' : t}
           </button>

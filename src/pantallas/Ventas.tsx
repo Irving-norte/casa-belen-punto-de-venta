@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom'
-import { tarjeta } from '../componentes/estilos'
+import { etiquetaAviso, tarjeta } from '../componentes/estilos'
 import type { Caja } from '../lib/dominio/tipos'
 import { formatear } from '../lib/dominio/dinero'
 import { NOMBRE_FORMA } from '../lib/dominio/pagos'
@@ -16,7 +16,7 @@ export default function Ventas({ caja }: { caja: Caja }) {
   return (
     <div className="mx-auto h-full max-w-4xl overflow-y-auto p-4">
       <div className="mb-4 flex flex-wrap items-baseline justify-between gap-2">
-        <h1 className="text-xl font-medium">Ventas del día</h1>
+        <h1 className="text-xl font-semibold">Ventas del día</h1>
         <p className="text-sm text-barro">
           {ventas.length} {ventas.length === 1 ? 'venta' : 'ventas'} · {formatear(total)}
           {sinTicket > 0 && ` · ${sinTicket} sin ticket`}
@@ -29,7 +29,7 @@ export default function Ventas({ caja }: { caja: Caja }) {
         <ul className={`${tarjeta} divide-y divide-linea p-0`}>
           {ventas.map((v) => (
             <li key={v.id}>
-              <Link to={`/venta/${v.id}`} className="flex items-center gap-4 px-4 py-3 active:bg-manteca">
+              <Link to={`/venta/${v.id}`} className="flex items-center gap-4 px-4 py-3 hover:bg-manteca active:bg-linea">
                 <span className="w-14 text-sm text-barro">#{v.folio}</span>
                 <span className="w-16 text-sm text-barro">{formatearHora(v.creadaEn)}</span>
                 <span className="min-w-0 flex-1 truncate text-sm">
@@ -37,9 +37,9 @@ export default function Ventas({ caja }: { caja: Caja }) {
                   {v.tipoCliente === 'alumno' && <span className="text-barro"> · Alumno</span>}
                 </span>
                 {!v.ticketEnviadoEn && (
-                  <span className="rounded-full bg-ambar/20 px-2 py-0.5 text-xs">Sin ticket</span>
+                  <span className={etiquetaAviso}>Sin ticket</span>
                 )}
-                <span className="w-24 text-right font-medium tabular-nums">{formatear(v.total)}</span>
+                <span className="w-24 text-right font-semibold tabular-nums">{formatear(v.total)}</span>
               </Link>
             </li>
           ))}

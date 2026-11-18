@@ -24,12 +24,12 @@ export function Modal({
         onClick={(e) => e.stopPropagation()}
       >
         <div className="mb-4 flex items-start justify-between gap-4">
-          <h2 className="text-lg font-medium">{titulo}</h2>
+          <h2 className="text-lg font-semibold">{titulo}</h2>
           <button
             type="button"
             onClick={onCerrar}
             aria-label="Cerrar"
-            className="-mr-2 -mt-1 rounded-full px-3 py-1 text-2xl leading-none text-barro"
+            className="-mr-2 -mt-1 rounded-full px-3 py-1 text-2xl leading-none text-barro hover:bg-manteca hover:text-espresso active:bg-linea"
           >
             ×
           </button>

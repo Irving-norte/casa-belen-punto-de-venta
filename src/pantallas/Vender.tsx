@@ -3,7 +3,17 @@ import { useNavigate } from 'react-router-dom'
 import { CATEGORIAS, PRODUCTOS } from '../data/catalogo'
 import { Modal } from '../componentes/Modal'
 import { TecladoMonto, textoACentavos } from '../componentes/TecladoMonto'
-import { botonPrimario, botonSecundario, campoTexto } from '../componentes/estilos'
+import {
+  botonPeligro,
+  botonPrimario,
+  botonSecundario,
+  botonTerciario,
+  campoTexto,
+  enlacePeligro,
+  etiquetaAviso,
+  opcion,
+  textoError,
+} from '../componentes/estilos'
 import type { Producto, TipoCliente } from '../lib/dominio/tipos'
 import { formatear } from '../lib/dominio/dinero'
 import { dentroDeRango, precioDeLista } from '../lib/dominio/precios'
@@ -54,12 +64,8 @@ export default function Vender() {
                   key={c.id}
                   type="button"
                   onClick={() => setCategoriaId(c.id)}
-                  className={
-                    'rounded-full px-3.5 py-1.5 text-sm ' +
-                    (c.id === categoriaId
-                      ? 'bg-espresso text-vela'
-                      : 'border border-linea bg-vela text-barro')
-                  }
+                  aria-pressed={c.id === categoriaId}
+                  className={'rounded-full px-3.5 py-1.5 text-sm ' + opcion(c.id === categoriaId)}
                 >
                   {c.nombre}
                 </button>
@@ -78,10 +84,10 @@ export default function Vender() {
                   key={p.id}
                   type="button"
                   onClick={() => tocarProducto(p)}
-                  className="flex min-h-24 flex-col justify-between rounded-xl border border-linea bg-vela p-3 text-left active:bg-manteca"
+                  className="flex min-h-24 flex-col justify-between rounded-xl border border-linea bg-vela p-3 text-left text-espresso hover:border-terracota-500 active:border-terracota-500 active:bg-terracota-50"
                 >
                   <span className="text-sm leading-snug">{p.nombre}</span>
-                  <span className="mt-2 text-sm font-medium text-terracota">
+                  <span className="mt-2 text-sm font-semibold text-terracota-600">
                     {etiquetaPrecio(p, venta.tipoCliente)}
                   </span>
                 </button>
@@ -178,7 +184,7 @@ function CapturaPrecio({
             }}
             etiqueta="Precio de esta pieza"
           />
-          {error && <p className="mt-3 text-sm text-peligro">{error}</p>}
+          {error && <p className={`mt-3 ${textoError}`} role="alert">{error}</p>}
           <button type="button" onClick={intentar} className={`${botonPrimario} mt-4 w-full`}>
             Agregar
           </button>
@@ -229,7 +235,9 @@ function Carrito() {
               onClick={() => venta.cambiarTipoCliente(tipo)}
               className={
                 'rounded-lg py-2 text-sm ' +
-                (venta.tipoCliente === tipo ? 'bg-vela font-medium shadow-sm' : 'text-barro')
+                (venta.tipoCliente === tipo
+                  ? 'bg-salvia-600 font-semibold text-vela hover:bg-salvia-700'
+                  : 'text-barro hover:bg-linea hover:text-espresso active:bg-linea')
               }
             >
               {tipo === 'general' ? 'General' : 'Alumno'}
@@ -251,19 +259,19 @@ function Carrito() {
                       {l.nombre}
                       {l.variante && <span className="text-barro"> · {l.variante}</span>}
                     </p>
-                    <p className="text-xs text-barro">
+                    <p className="mt-0.5 flex items-center text-xs text-barro">
                       {formatear(l.precioUnitario)} c/u
-                      {l.fueraDeRango && <span className="ml-1 text-ambar">· fuera de rango</span>}
+                      {l.fueraDeRango && <span className={`ml-2 ${etiquetaAviso}`}>Fuera de rango</span>}
                     </p>
                   </div>
-                  <p className="shrink-0 text-sm font-medium tabular-nums">{formatear(subtotal(l))}</p>
+                  <p className="shrink-0 text-sm font-semibold tabular-nums">{formatear(subtotal(l))}</p>
                 </div>
                 <div className="mt-2 flex items-center gap-2">
                   <button
                     type="button"
                     aria-label={`Quitar uno de ${l.nombre}`}
                     onClick={() => venta.cambiarCantidadLinea(i, l.cantidad - 1)}
-                    className="h-9 w-9 rounded-lg bg-manteca text-lg"
+                    className="h-10 w-10 rounded-lg bg-manteca text-lg text-espresso hover:bg-linea active:bg-linea-fuerte"
                   >
                     −
                   </button>
@@ -272,14 +280,14 @@ function Carrito() {
                     type="button"
                     aria-label={`Agregar uno de ${l.nombre}`}
                     onClick={() => venta.cambiarCantidadLinea(i, l.cantidad + 1)}
-                    className="h-9 w-9 rounded-lg bg-manteca text-lg"
+                    className="h-10 w-10 rounded-lg bg-manteca text-lg text-espresso hover:bg-linea active:bg-linea-fuerte"
                   >
                     +
                   </button>
                   <button
                     type="button"
                     onClick={() => venta.quitarLinea(i)}
-                    className="ml-auto text-xs text-peligro"
+                    className={`ml-auto ${enlacePeligro}`}
                   >
                     Quitar
                   </button>
@@ -295,7 +303,7 @@ function Carrito() {
           <span className="text-sm text-barro">
             Total · {piezasDe(venta.lineas)} {piezasDe(venta.lineas) === 1 ? 'pieza' : 'piezas'}
           </span>
-          <span className="text-3xl font-medium tabular-nums" data-testid="total-venta">
+          <span className="text-3xl font-semibold tabular-nums" data-testid="total-venta">
             {formatear(venta.total)}
           </span>
         </div>
@@ -308,7 +316,7 @@ function Carrito() {
           Cobrar
         </button>
         {venta.lineas.length > 0 && (
-          <button type="button" onClick={() => setConfirmarVaciar(true)} className="w-full py-1 text-sm text-barro">
+          <button type="button" onClick={() => setConfirmarVaciar(true)} className={`w-full ${botonTerciario}`}>
             Vaciar venta
           </button>
         )}
@@ -323,7 +331,7 @@ function Carrito() {
             </button>
             <button
               type="button"
-              className={botonPrimario}
+              className={botonPeligro}
               onClick={() => {
                 venta.vaciar()
                 setConfirmarVaciar(false)

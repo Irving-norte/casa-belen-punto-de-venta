@@ -55,8 +55,10 @@ export default function App() {
                 to={a}
                 end={a === '/'}
                 className={({ isActive }) =>
-                  'rounded-lg px-4 py-2 text-sm ' +
-                  (isActive ? 'bg-terracota font-medium text-vela' : 'text-barro active:bg-manteca')
+                  'border-b-3 px-4 py-2 text-sm ' +
+                  (isActive
+                    ? 'rounded-t-lg border-terracota-500 font-semibold text-espresso'
+                    : 'rounded-lg border-transparent text-barro hover:bg-manteca hover:text-espresso active:bg-linea')
                 }
               >
                 {texto}
@@ -67,7 +69,7 @@ export default function App() {
 
         <div className="ml-auto flex items-center gap-3 text-xs text-barro">
           {!enLinea && (
-            <span className="rounded-full bg-ambar/20 px-3 py-1 font-medium text-espresso">
+            <span className="rounded-full bg-ambar-100 px-3 py-1 font-semibold text-ambar-800">
               Sin internet · se guarda en la tablet
             </span>
           )}
