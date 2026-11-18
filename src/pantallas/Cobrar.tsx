@@ -118,9 +118,9 @@ export default function Cobrar() {
           ))}
         </ul>
         <div className="mt-4 space-y-1 border-t border-linea pt-3">
-          <Fila etiqueta="Total" valor={formatear(cobro.total)} grande />
+          <Fila etiqueta="Total" valor={formatear(cobro.total)} grande testId="cobro-total" />
           {cobro.pagos.map((p, i) => (
-            <div key={i} className="flex items-center justify-between text-sm">
+            <div key={i} className="flex items-center justify-between text-sm" data-testid="pago-registrado" data-forma={p.forma}>
               <span>
                 {NOMBRE_FORMA[p.forma]}
                 {p.referencia && <span className="text-barro"> · {p.referencia}</span>}
@@ -132,10 +132,10 @@ export default function Cobrar() {
                   Quitar
                 </button>
               </span>
-              <span className="tabular-nums">{formatear(p.monto)}</span>
+              <span className="tabular-nums" data-testid="pago-monto">{formatear(p.monto)}</span>
             </div>
           ))}
-          {!pagado && <Fila etiqueta="Falta" valor={formatear(falta)} />}
+          {!pagado && <Fila etiqueta="Falta" valor={formatear(falta)} testId="cobro-falta" />}
         </div>
       </section>
 
@@ -223,11 +223,23 @@ export default function Cobrar() {
   )
 }
 
-function Fila({ etiqueta, valor, grande }: { etiqueta: string; valor: string; grande?: boolean }) {
+function Fila({
+  etiqueta,
+  valor,
+  grande,
+  testId,
+}: {
+  etiqueta: string
+  valor: string
+  grande?: boolean
+  testId?: string
+}) {
   return (
     <div className="flex items-baseline justify-between">
       <span className={grande ? 'font-semibold' : 'text-sm text-barro'}>{etiqueta}</span>
-      <span className={(grande ? 'text-2xl font-semibold' : 'text-sm') + ' tabular-nums'}>{valor}</span>
+      <span className={(grande ? 'text-2xl font-semibold' : 'text-sm') + ' tabular-nums'} data-testid={testId}>
+        {valor}
+      </span>
     </div>
   )
 }

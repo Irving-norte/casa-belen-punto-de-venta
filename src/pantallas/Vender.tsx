@@ -83,6 +83,8 @@ export default function Vender() {
                 <button
                   key={p.id}
                   type="button"
+                  data-testid="producto"
+                  data-producto-id={p.id}
                   onClick={() => tocarProducto(p)}
                   className="flex min-h-24 flex-col justify-between rounded-xl border border-linea bg-vela p-3 text-left text-espresso hover:border-terracota-500 active:border-terracota-500 active:bg-terracota-50"
                 >
@@ -252,19 +254,31 @@ function Carrito() {
         ) : (
           <ul className="space-y-3">
             {venta.lineas.map((l, i) => (
-              <li key={`${l.productoId}-${l.variante ?? ''}-${l.precioUnitario}`} className="border-b border-linea pb-3">
+              <li
+                key={`${l.productoId}-${l.variante ?? ''}-${l.precioUnitario}`}
+                data-testid="linea-carrito"
+                data-producto-id={l.productoId}
+                data-variante={l.variante ?? ''}
+                className="border-b border-linea pb-3"
+              >
                 <div className="flex justify-between gap-2">
                   <div className="min-w-0">
-                    <p className="text-sm leading-snug">
+                    <p className="text-sm leading-snug" data-testid="linea-nombre">
                       {l.nombre}
                       {l.variante && <span className="text-barro"> · {l.variante}</span>}
                     </p>
                     <p className="mt-0.5 flex items-center text-xs text-barro">
-                      {formatear(l.precioUnitario)} c/u
-                      {l.fueraDeRango && <span className={`ml-2 ${etiquetaAviso}`}>Fuera de rango</span>}
+                      <span data-testid="linea-precio-unitario">{formatear(l.precioUnitario)}</span>&nbsp;c/u
+                      {l.fueraDeRango && (
+                        <span className={`ml-2 ${etiquetaAviso}`} data-testid="linea-fuera-de-rango">
+                          Fuera de rango
+                        </span>
+                      )}
                     </p>
                   </div>
-                  <p className="shrink-0 text-sm font-semibold tabular-nums">{formatear(subtotal(l))}</p>
+                  <p className="shrink-0 text-sm font-semibold tabular-nums" data-testid="linea-subtotal">
+                    {formatear(subtotal(l))}
+                  </p>
                 </div>
                 <div className="mt-2 flex items-center gap-2">
                   <button
@@ -275,7 +289,9 @@ function Carrito() {
                   >
                     −
                   </button>
-                  <span className="w-8 text-center tabular-nums">{l.cantidad}</span>
+                  <span className="w-8 text-center tabular-nums" data-testid="linea-cantidad">
+                    {l.cantidad}
+                  </span>
                   <button
                     type="button"
                     aria-label={`Agregar uno de ${l.nombre}`}

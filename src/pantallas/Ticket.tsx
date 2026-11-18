@@ -42,10 +42,12 @@ export default function Ticket() {
     <div className="mx-auto grid h-full max-w-5xl gap-4 overflow-y-auto p-4 md:grid-cols-2">
       <section className={`${tarjeta} space-y-4`}>
         <div>
-          <p className="text-sm text-barro">
+          <p className="text-sm text-barro" data-testid="ticket-folio">
             Venta #{venta.folio} · {formatearHora(venta.creadaEn)}
           </p>
-          <p className="text-3xl font-semibold tabular-nums">{formatear(venta.total)}</p>
+          <p className="text-3xl font-semibold tabular-nums" data-testid="ticket-total">
+            {formatear(venta.total)}
+          </p>
         </div>
 
         {venta.cambio > 0 && (
@@ -79,7 +81,7 @@ export default function Ticket() {
           {venta.ticketEnviadoEn ? 'Reenviar ticket por WhatsApp' : 'Enviar ticket por WhatsApp'}
         </button>
         {venta.ticketEnviadoEn && (
-          <p className="text-center text-xs font-semibold text-salvia-800">Ticket enviado a las {formatearHora(venta.ticketEnviadoEn)}</p>
+          <p className="text-center text-xs font-semibold text-salvia-800" data-testid="ticket-enviado">Ticket enviado a las {formatearHora(venta.ticketEnviadoEn)}</p>
         )}
 
         <div className="grid grid-cols-2 gap-2">
@@ -94,7 +96,7 @@ export default function Ticket() {
 
       <section className={tarjeta}>
         <p className="mb-2 text-sm text-barro">Así se verá el ticket</p>
-        <pre className="whitespace-pre-wrap font-sans text-sm leading-relaxed">{texto}</pre>
+        <pre className="whitespace-pre-wrap font-sans text-sm leading-relaxed" data-testid="ticket-texto">{texto}</pre>
       </section>
     </div>
   )

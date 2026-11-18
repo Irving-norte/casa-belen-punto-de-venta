@@ -81,20 +81,28 @@ export default function Gastos({ caja }: { caja: Caja }) {
       <section>
         <div className="mb-3 flex items-baseline justify-between">
           <h2 className="text-lg font-semibold">Gastos de hoy</h2>
-          <p className="text-sm text-barro">Total {formatear(total)}</p>
+          <p className="text-sm text-barro" data-testid="gastos-total">
+            Total {formatear(total)}
+          </p>
         </div>
         {!gastos || gastos.length === 0 ? (
           <p className="py-10 text-center text-barro">Sin gastos registrados.</p>
         ) : (
           <ul className={`${tarjeta} divide-y divide-linea p-0`}>
             {gastos.map((g) => (
-              <li key={g.id} className="flex items-center gap-4 px-4 py-3">
+              <li key={g.id} className="flex items-center gap-4 px-4 py-3" data-testid="gasto-fila">
                 <span className="w-16 text-sm text-barro">{formatearHora(g.creadoEn)}</span>
                 <span className="min-w-0 flex-1 text-sm">
-                  {g.concepto}
-                  {g.nota && <span className="block text-xs text-barro">{g.nota}</span>}
+                  <span data-testid="gasto-concepto">{g.concepto}</span>
+                  {g.nota && (
+                    <span className="block text-xs text-barro" data-testid="gasto-nota">
+                      {g.nota}
+                    </span>
+                  )}
                 </span>
-                <span className="font-semibold tabular-nums">{formatear(g.monto)}</span>
+                <span className="font-semibold tabular-nums" data-testid="gasto-monto">
+                  {formatear(g.monto)}
+                </span>
               </li>
             ))}
           </ul>
