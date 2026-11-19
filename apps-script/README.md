@@ -74,6 +74,12 @@ dos cosas:
 | Ver si algo tiene errores | Casa Belén → Revisar productos |
 | Ver qué falta reabastecer | Existencias → columna **Mínimo**; «Estado» dice «Reabastecer» al llegar a ese número |
 
+Las columnas **Existencia** y **Estado** son fórmulas (la suma de
+Movimientos): no escribas en ellas. Si alguien escribe encima o aparece
+`#ERROR!`, el script vuelve a poner las fórmulas en la siguiente
+sincronización de la tablet (o al usar Registrar entradas y conteos). Lo que
+ve la tablet siempre sale de Movimientos, no de esa columna.
+
 Reglas de la pestaña Productos:
 
 - **Precio General** y **Precio Alumno**: si Alumno está vacío o es igual,
