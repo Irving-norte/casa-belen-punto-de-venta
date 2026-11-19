@@ -45,10 +45,18 @@ dos cosas:
    - Quién tiene acceso: **Cualquier usuario**. La tablet no inicia sesión en
      Google. Lo que protege la hoja es la clave de la tablet.
    - **Implementar** y copia la URL que termina en `/exec`.
-5. **Vincular la tablet.** En la hoja: **Casa Belén → Vincular tablet** (si
-   la pide, pega la URL `/exec`). Copia el enlace, mándatelo (por ejemplo, por
-   WhatsApp) y ábrelo **en Chrome de la tablet** → **Vincular esta tablet**.
-   La tablet sube lo pendiente y descarga productos y existencias.
+5. **Vincular la tablet.** En la hoja: **Casa Belén → Vincular tablet**. La
+   primera vez te pide la URL `/exec` del paso 4: pégala. Copia el enlace,
+   mándatelo (por ejemplo, por WhatsApp) y ábrelo **en Chrome de la tablet** →
+   **Vincular esta tablet**. La tablet sube lo pendiente y descarga productos y
+   existencias. Para la hoja de pruebas, ábrelo en una computadora o teléfono,
+   nunca en la tablet de la tienda.
+
+   Si la tablet dice «No se pudo conectar con la hoja» y sí hay internet:
+   abre la URL `/exec` en una ventana de incógnito (debe mostrar
+   `{"ok":true,…}`; si pide iniciar sesión, el acceso no es «Cualquier
+   usuario»), revisa con **Casa Belén → Cambiar dirección del script** que la
+   URL guardada sea la tuya y genera un enlace nuevo.
 6. **Inventario inicial.** En la pestaña **Existencias**, escribe en la
    columna **Conteo** lo que hay de cada cosa (piezas; gramos para las ceras)
    y usa **Casa Belén → Registrar entradas y conteos**. Lo que no se cuenta no

@@ -894,16 +894,14 @@ function nuevaClave() {
   return (Utilities.getUuid() + Utilities.getUuid()).replace(/-/g, '');
 }
 
+/**
+ * La URL /exec que pegó la persona (Casa Belén → Vincular tablet la pide la
+ * primera vez). No se usa ScriptApp.getService().getUrl(): puede regresar la
+ * dirección de otra implementación que no responde.
+ */
 function urlDelScript() {
   var guardada = PropertiesService.getScriptProperties().getProperty(PROP.urlScript);
-  if (guardada) return guardada;
-  var url = '';
-  try {
-    url = ScriptApp.getService().getUrl() || '';
-  } catch (e) {
-    url = '';
-  }
-  return esUrlScript(url) ? url : '';
+  return esUrlScript(guardada) ? guardada : '';
 }
 
 function esUrlScript(url) {
