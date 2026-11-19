@@ -1,6 +1,6 @@
-import { useEffect, useState } from 'react'
 import { NavLink, Route, Routes } from 'react-router-dom'
 import AvisoActualizacion from './componentes/AvisoActualizacion'
+import IndicadorHoja from './componentes/IndicadorHoja'
 import { useCajaAbierta } from './lib/hooks/useCaja'
 import { formatearHora } from './lib/formato'
 import { ES_QA } from './lib/entorno'
@@ -11,6 +11,8 @@ import Ticket from './pantallas/Ticket'
 import Ventas from './pantallas/Ventas'
 import Gastos from './pantallas/Gastos'
 import Corte from './pantallas/Corte'
+import Vincular from './pantallas/Vincular'
+import Sincronizacion from './pantallas/Sincronizacion'
 
 const NAV = [
   { a: '/', texto: 'Vender' },
@@ -19,23 +21,8 @@ const NAV = [
   { a: '/corte', texto: 'Corte' },
 ]
 
-function useEnLinea(): boolean {
-  const [enLinea, setEnLinea] = useState(navigator.onLine)
-  useEffect(() => {
-    const actualizar = () => setEnLinea(navigator.onLine)
-    window.addEventListener('online', actualizar)
-    window.addEventListener('offline', actualizar)
-    return () => {
-      window.removeEventListener('online', actualizar)
-      window.removeEventListener('offline', actualizar)
-    }
-  }, [])
-  return enLinea
-}
-
 export default function App() {
   const caja = useCajaAbierta()
-  const enLinea = useEnLinea()
 
   return (
     <div className="flex h-full flex-col">
@@ -77,11 +64,7 @@ export default function App() {
         )}
 
         <div className="ml-auto flex items-center gap-3 text-xs text-barro">
-          {!enLinea && (
-            <span className="rounded-full bg-ambar-100 px-3 py-1 font-semibold text-ambar-800">
-              Sin internet · se guarda en la tablet
-            </span>
-          )}
+          <IndicadorHoja />
           {caja && <span data-testid="caja-abierta">Caja abierta desde {formatearHora(caja.abiertaEn)}</span>}
         </div>
       </header>
@@ -89,17 +72,24 @@ export default function App() {
       <AvisoActualizacion />
 
       <main className="min-h-0 flex-1">
-        {caja === undefined ? null : caja === null ? (
-          <Apertura />
-        ) : (
+        {caja === undefined ? null : (
           <Routes>
-            <Route path="/" element={<Vender />} />
-            <Route path="/cobrar" element={<Cobrar />} />
-            <Route path="/venta/:id" element={<Ticket />} />
-            <Route path="/ventas" element={<Ventas caja={caja} />} />
-            <Route path="/gastos" element={<Gastos caja={caja} />} />
-            <Route path="/corte" element={<Corte caja={caja} />} />
-            <Route path="*" element={<Vender />} />
+            {/* La hoja se vincula y se revisa con o sin caja abierta. */}
+            <Route path="/vincular" element={<Vincular />} />
+            <Route path="/sincronizacion" element={<Sincronizacion />} />
+            {caja === null ? (
+              <Route path="*" element={<Apertura />} />
+            ) : (
+              <>
+                <Route path="/" element={<Vender />} />
+                <Route path="/cobrar" element={<Cobrar />} />
+                <Route path="/venta/:id" element={<Ticket />} />
+                <Route path="/ventas" element={<Ventas caja={caja} />} />
+                <Route path="/gastos" element={<Gastos caja={caja} />} />
+                <Route path="/corte" element={<Corte caja={caja} />} />
+                <Route path="*" element={<Vender />} />
+              </>
+            )}
           </Routes>
         )}
       </main>

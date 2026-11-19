@@ -1,7 +1,13 @@
-import type { Categoria, Precio, Producto } from '../lib/dominio/tipos'
+import type { Catalogo, Categoria, Precio, Producto } from '../lib/dominio/tipos'
 
 /**
- * Catálogo de la tienda física. Fuentes (ver el proyecto en Claude):
+ * Catálogo de ARRANQUE de la tienda física. Desde la fase 2 el catálogo vivo
+ * está en la hoja de Google (pestañas Productos y Categorías): la tablet lo
+ * descarga al sincronizar y este archivo solo se usa mientras no lo ha
+ * descargado nunca. También genera el catálogo inicial de la hoja:
+ * `npm run catalogo:hoja` → apps-script/CatalogoInicial.gs.
+ *
+ * Fuentes (ver el proyecto en Claude):
  *  - Calculadora de pedidos (velas de punta, moldes, ceras, aditivos,
  *    pigmentos, complementos de escamada, estructuras).
  *  - PuntoDeVenta-CatalogoFaltante.md (frascos, extras, pigmentos por color,
@@ -58,7 +64,7 @@ function producto(
   categoriaId: string,
   nombre: string,
   precio: Precio,
-  extra: { codigo?: string; variantes?: string[] } = {},
+  extra: { codigo?: string; variantes?: string[]; articulo?: string; descuenta?: number } = {},
 ): Producto {
   return {
     id: `${categoriaId}-${extra.codigo ?? slug(nombre)}`,
@@ -66,6 +72,8 @@ function producto(
     nombre,
     precio,
     ...(extra.variantes ? { variantes: extra.variantes } : {}),
+    ...(extra.articulo ? { articulo: extra.articulo } : {}),
+    ...(extra.descuenta != null && extra.descuenta !== 1 ? { descuenta: extra.descuenta } : {}),
   }
 }
 
@@ -161,19 +169,33 @@ const temporada250 = listaFija('temporada-250', [
 
 // ---------------- Ceras ----------------
 
-const ceras = listaFija('ceras', [
-  ['Soya APF 1 kg', 135], ['Soya APF ½ kg', 75],
-  ['Soya BPF 1 kg', 120], ['Soya BPF ½ kg', 70],
-  ['Cera de abeja 1 kg', 410],
-  ['Parafina Malasia blanca 1 kg', 95], ['Parafina Malasia blanca ½ kg', 55],
-  ['Parafina Malasia miel 1 kg', 105], ['Parafina Malasia miel ½ kg', 60],
-  ['Parafina China 1 kg', 85], ['Parafina China ½ kg', 50],
-  ['Cera nieve 1 kg', 140], ['Cera nieve ½ kg', 70],
-  ['Cera flotante 1 kg', 145], ['Cera flotante ½ kg', 80],
-  ['Cera flexible 1 kg', 150],
-  ['Cera en gel 1 kg', 140],
-  ['Lámina de cera de abeja (24 x 40 cm)', 45],
-])
+/** Unidad de cada artículo a granel (los demás se cuentan por pieza). */
+export const UNIDADES_ARTICULO: Record<string, string> = {}
+
+/**
+ * Ceras a granel: se pesan al vender y todas sus presentaciones descuentan
+ * gramos del mismo costal (el artículo).
+ */
+function granel(articulo: string, presentaciones: [etiqueta: string, gramos: number, pesos: number][]): Producto[] {
+  UNIDADES_ARTICULO[articulo] = 'g'
+  return presentaciones.map(([etiqueta, gramos, pesos]) =>
+    producto('ceras', `${articulo} ${etiqueta}`, fijo(pesos), { articulo, descuenta: gramos }),
+  )
+}
+
+const ceras: Producto[] = [
+  ...granel('Soya APF', [['1 kg', 1000, 135], ['½ kg', 500, 75]]),
+  ...granel('Soya BPF', [['1 kg', 1000, 120], ['½ kg', 500, 70]]),
+  ...granel('Cera de abeja', [['1 kg', 1000, 410]]),
+  ...granel('Parafina Malasia blanca', [['1 kg', 1000, 95], ['½ kg', 500, 55]]),
+  ...granel('Parafina Malasia miel', [['1 kg', 1000, 105], ['½ kg', 500, 60]]),
+  ...granel('Parafina China', [['1 kg', 1000, 85], ['½ kg', 500, 50]]),
+  ...granel('Cera nieve', [['1 kg', 1000, 140], ['½ kg', 500, 70]]),
+  ...granel('Cera flotante', [['1 kg', 1000, 145], ['½ kg', 500, 80]]),
+  ...granel('Cera flexible', [['1 kg', 1000, 150]]),
+  ...granel('Cera en gel', [['1 kg', 1000, 140]]),
+  producto('ceras', 'Lámina de cera de abeja (24 x 40 cm)', fijo(45)),
+]
 
 // ---------------- Extras (aditivos) ----------------
 
@@ -262,6 +284,4 @@ export const PRODUCTOS: Producto[] = [
   ...estructuras,
 ]
 
-export const PRODUCTOS_POR_ID: ReadonlyMap<string, Producto> = new Map(
-  PRODUCTOS.map((p) => [p.id, p]),
-)
+export const CATALOGO_ARRANQUE: Catalogo = { categorias: CATEGORIAS, productos: PRODUCTOS }

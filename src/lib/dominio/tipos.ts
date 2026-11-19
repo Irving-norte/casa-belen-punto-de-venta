@@ -29,7 +29,25 @@ export interface Producto {
   precio: Precio
   /** Si existe, al vender se elige una (p. ej. el color de un pigmento). */
   variantes?: string[]
+  /**
+   * Existencia de la que sale. Vacío = el producto lleva la suya (por pieza).
+   * Ej.: «Soya APF 1 kg» y «Soya APF ½ kg» salen del artículo «Soya APF».
+   */
+  articulo?: string
+  /** Cuánto resta cada pieza vendida de esa existencia (p. ej. 1000 g). Vacío = 1. */
+  descuenta?: number
 }
+
+export interface Catalogo {
+  categorias: Categoria[]
+  productos: Producto[]
+}
+
+/**
+ * Existencias según la hoja, por clave (ver dominio/existencias.ts):
+ * cantidad en piezas o en la unidad del artículo (g para las ceras).
+ */
+export type Existencias = Record<string, { cantidad: number; unidad: string }>
 
 // ---------- Venta ----------
 

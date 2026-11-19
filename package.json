@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc --noEmit && vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "catalogo:hoja": "node scripts/catalogo-hoja.ts"
   },
   "dependencies": {
     "dexie": "4.4.5",
