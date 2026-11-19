@@ -1,5 +1,6 @@
 import Dexie, { type EntityTable } from 'dexie'
 import type { Caja, Gasto, Venta } from '../dominio/tipos'
+import { NOMBRE_BASE_DE_DATOS } from '../entorno'
 
 export interface MetaRegistro {
   clave: string
@@ -17,7 +18,7 @@ export class PuntoDeVentaDB extends Dexie {
   meta!: EntityTable<MetaRegistro, 'clave'>
 
   constructor() {
-    super('casa-belen-pos')
+    super(NOMBRE_BASE_DE_DATOS)
     this.version(1).stores({
       cajas: 'id, abiertaEn, sincronizada',
       ventas: 'id, folio, cajaId, creadaEn, sincronizada',

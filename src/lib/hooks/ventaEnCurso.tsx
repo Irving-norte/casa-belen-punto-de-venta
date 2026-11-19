@@ -2,6 +2,7 @@ import { createContext, useContext, useEffect, useMemo, useState, type ReactNode
 import type { LineaVenta, Producto, TipoCliente } from '../dominio/tipos'
 import { agregar, cambiarCantidad, quitar, recalcularPorTipoCliente, totalDe } from '../dominio/carrito'
 import { PRODUCTOS_POR_ID } from '../../data/catalogo'
+import { PREFIJO_ALMACENAMIENTO } from '../entorno'
 
 interface VentaEnCurso {
   tipoCliente: TipoCliente
@@ -18,7 +19,7 @@ const Contexto = createContext<VentaEnCurso | null>(null)
 
 // Se guarda en el navegador para no perder el carrito si la app se recarga
 // a media venta.
-const CLAVE = 'casa-belen-pos:venta-en-curso'
+const CLAVE = `${PREFIJO_ALMACENAMIENTO}:venta-en-curso`
 
 interface Guardado {
   tipoCliente: TipoCliente

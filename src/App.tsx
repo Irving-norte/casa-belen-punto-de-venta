@@ -3,6 +3,7 @@ import { NavLink, Route, Routes } from 'react-router-dom'
 import AvisoActualizacion from './componentes/AvisoActualizacion'
 import { useCajaAbierta } from './lib/hooks/useCaja'
 import { formatearHora } from './lib/formato'
+import { ES_QA } from './lib/entorno'
 import Apertura from './pantallas/Apertura'
 import Vender from './pantallas/Vender'
 import Cobrar from './pantallas/Cobrar'
@@ -38,6 +39,14 @@ export default function App() {
 
   return (
     <div className="flex h-full flex-col">
+      {ES_QA && (
+        <div
+          className="shrink-0 bg-ambar-100 px-4 py-1 text-center text-xs font-semibold tracking-wide text-ambar-800"
+          data-testid="franja-qa"
+        >
+          QA · datos de prueba — no usar para ventas reales
+        </div>
+      )}
       <header className="flex shrink-0 flex-wrap items-center gap-x-6 gap-y-2 border-b border-linea bg-vela px-4 py-2">
         <div className="flex items-center gap-2">
           <img src={`${import.meta.env.BASE_URL}icons/marca.png`} alt="" className="h-8 w-auto" />
@@ -73,7 +82,7 @@ export default function App() {
               Sin internet · se guarda en la tablet
             </span>
           )}
-          {caja && <span>Caja abierta desde {formatearHora(caja.abiertaEn)}</span>}
+          {caja && <span data-testid="caja-abierta">Caja abierta desde {formatearHora(caja.abiertaEn)}</span>}
         </div>
       </header>
 

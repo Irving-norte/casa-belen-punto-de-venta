@@ -44,6 +44,26 @@ Cada `git push` a `main` corre `.github/workflows/desplegar.yml`
 (typecheck, build y publicación). En cada Pull Request, `ci.yml` corre el
 typecheck y el build.
 
+## Entorno de QA
+
+La misma app se construye en modo QA desde el repo
+[casa-belen-punto-de-venta-qa](https://github.com/Irving-norte/casa-belen-punto-de-venta-qa),
+que la publica en https://irving-norte.github.io/casa-belen-punto-de-venta-qa/ y
+corre las pruebas de Playwright contra ella.
+
+```bash
+VITE_ENTORNO=qa VITE_BASE=/casa-belen-punto-de-venta-qa/ npm run build
+```
+
+En QA la app muestra la franja «QA · datos de prueba» y usa su propia base de
+datos (`casa-belen-pos-qa`) y sus propias claves de almacenamiento. Producción y
+QA viven en el mismo dominio y el navegador separa los datos por dominio, así
+que sin esto se mezclarían si un mismo navegador abre los dos. Regla: la tablet
+de la tienda solo abre producción.
+
+Los elementos que usan las pruebas llevan `data-testid`. Si cambias uno,
+actualiza el localizador correspondiente en el repo de QA.
+
 ## Estructura
 
 ```

@@ -119,26 +119,38 @@ function Diferencia({ diferencia }: { diferencia: number }) {
 export function ResumenCorte({ fondoInicial, corte }: { fondoInicial: number; corte: DatosCorte }) {
   return (
     <dl className="space-y-2 text-sm">
-      <Renglon etiqueta="Ventas" valor={`${corte.numeroVentas}`} />
-      <Renglon etiqueta="Total vendido" valor={formatear(corte.totalVentas)} fuerte />
+      <Renglon etiqueta="Ventas" valor={`${corte.numeroVentas}`} testId="corte-ventas" />
+      <Renglon etiqueta="Total vendido" valor={formatear(corte.totalVentas)} fuerte testId="corte-total-vendido" />
       <div className="my-2 border-t border-linea" />
-      <Renglon etiqueta="Efectivo" valor={formatear(corte.ventasEfectivo)} />
-      <Renglon etiqueta="Tarjeta" valor={formatear(corte.ventasTarjeta)} />
-      <Renglon etiqueta="Transferencia" valor={formatear(corte.ventasTransferencia)} />
+      <Renglon etiqueta="Efectivo" valor={formatear(corte.ventasEfectivo)} testId="corte-efectivo" />
+      <Renglon etiqueta="Tarjeta" valor={formatear(corte.ventasTarjeta)} testId="corte-tarjeta" />
+      <Renglon etiqueta="Transferencia" valor={formatear(corte.ventasTransferencia)} testId="corte-transferencia" />
       <div className="my-2 border-t border-linea" />
-      <Renglon etiqueta="Fondo inicial" valor={formatear(fondoInicial)} />
-      <Renglon etiqueta="+ Ventas en efectivo" valor={formatear(corte.ventasEfectivo)} />
-      <Renglon etiqueta="− Gastos" valor={formatear(corte.gastos)} />
-      <Renglon etiqueta="Efectivo esperado en caja" valor={formatear(corte.efectivoEsperado)} fuerte />
+      <Renglon etiqueta="Fondo inicial" valor={formatear(fondoInicial)} testId="corte-fondo" />
+      <Renglon etiqueta="+ Ventas en efectivo" valor={formatear(corte.ventasEfectivo)} testId="corte-mas-efectivo" />
+      <Renglon etiqueta="− Gastos" valor={formatear(corte.gastos)} testId="corte-gastos" />
+      <Renglon etiqueta="Efectivo esperado en caja" valor={formatear(corte.efectivoEsperado)} fuerte testId="corte-esperado" />
     </dl>
   )
 }
 
-function Renglon({ etiqueta, valor, fuerte }: { etiqueta: string; valor: string; fuerte?: boolean }) {
+function Renglon({
+  etiqueta,
+  valor,
+  fuerte,
+  testId,
+}: {
+  etiqueta: string
+  valor: string
+  fuerte?: boolean
+  testId: string
+}) {
   return (
     <div className="flex justify-between gap-4">
       <dt className={fuerte ? 'font-semibold' : 'text-barro'}>{etiqueta}</dt>
-      <dd className={(fuerte ? 'font-semibold' : '') + ' tabular-nums'}>{valor}</dd>
+      <dd className={(fuerte ? 'font-semibold' : '') + ' tabular-nums'} data-testid={testId}>
+        {valor}
+      </dd>
     </div>
   )
 }

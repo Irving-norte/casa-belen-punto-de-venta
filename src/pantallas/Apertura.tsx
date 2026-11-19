@@ -47,14 +47,14 @@ export default function Apertura() {
       </section>
 
       {ultima?.corte && (
-        <section className={tarjeta}>
-          <h2 className="mb-1 text-lg font-medium">Último corte</h2>
+        <section className={tarjeta} data-testid="ultimo-corte">
+          <h2 className="mb-1 text-lg font-semibold">Último corte</h2>
           <p className="mb-4 text-sm text-barro">
             {formatearFechaHora(ultima.abiertaEn)} — {formatearFechaHora(ultima.cerradaEn!)}
           </p>
           <ResumenCorte fondoInicial={ultima.fondoInicial} corte={ultima.corte} />
           <p className="mt-4 text-sm">
-            Efectivo contado: <strong>{formatear(ultima.corte.efectivoContado)}</strong>
+            Efectivo contado: <strong data-testid="ultimo-corte-contado">{formatear(ultima.corte.efectivoContado)}</strong>
           </p>
         </section>
       )}

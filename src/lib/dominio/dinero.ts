@@ -20,15 +20,25 @@ export function aCentavos(pesos: string | number): number {
   return signo * (Number(enterosAbs) * 100 + Number(centavosTexto))
 }
 
-/** 2250 (centavos) → "$22.50" · 2200 → "$22" (sin decimales si son .00) */
-const formateador = new Intl.NumberFormat('es-MX', {
+/**
+ * 2250 (centavos) → "$22.50" · 2200 → "$22" (sin decimales si son .00).
+ * Con centavos siempre van dos dígitos: 3750 → "$37.50", nunca "$37.5".
+ */
+const sinCentavos = new Intl.NumberFormat('es-MX', {
   style: 'currency',
   currency: 'MXN',
   minimumFractionDigits: 0,
+  maximumFractionDigits: 0,
+})
+const conCentavos = new Intl.NumberFormat('es-MX', {
+  style: 'currency',
+  currency: 'MXN',
+  minimumFractionDigits: 2,
   maximumFractionDigits: 2,
 })
 
 export function formatear(centavos: number): string {
+  const formateador = centavos % 100 === 0 ? sinCentavos : conCentavos
   return formateador.format(centavos / 100)
 }
 

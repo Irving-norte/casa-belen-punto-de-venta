@@ -17,7 +17,7 @@ export default function Ventas({ caja }: { caja: Caja }) {
     <div className="mx-auto h-full max-w-4xl overflow-y-auto p-4">
       <div className="mb-4 flex flex-wrap items-baseline justify-between gap-2">
         <h1 className="text-xl font-semibold">Ventas del día</h1>
-        <p className="text-sm text-barro">
+        <p className="text-sm text-barro" data-testid="ventas-resumen">
           {ventas.length} {ventas.length === 1 ? 'venta' : 'ventas'} · {formatear(total)}
           {sinTicket > 0 && ` · ${sinTicket} sin ticket`}
         </p>
@@ -28,18 +28,24 @@ export default function Ventas({ caja }: { caja: Caja }) {
       ) : (
         <ul className={`${tarjeta} divide-y divide-linea p-0`}>
           {ventas.map((v) => (
-            <li key={v.id}>
+            <li key={v.id} data-testid="venta-fila" data-folio={v.folio}>
               <Link to={`/venta/${v.id}`} className="flex items-center gap-4 px-4 py-3 hover:bg-manteca active:bg-linea">
-                <span className="w-14 text-sm text-barro">#{v.folio}</span>
+                <span className="w-14 text-sm text-barro" data-testid="venta-folio">
+                  #{v.folio}
+                </span>
                 <span className="w-16 text-sm text-barro">{formatearHora(v.creadaEn)}</span>
-                <span className="min-w-0 flex-1 truncate text-sm">
+                <span className="min-w-0 flex-1 truncate text-sm" data-testid="venta-formas">
                   {[...new Set(v.pagos.map((p) => NOMBRE_FORMA[p.forma]))].join(' + ')}
                   {v.tipoCliente === 'alumno' && <span className="text-barro"> · Alumno</span>}
                 </span>
                 {!v.ticketEnviadoEn && (
-                  <span className={etiquetaAviso}>Sin ticket</span>
+                  <span className={etiquetaAviso} data-testid="venta-sin-ticket">
+                    Sin ticket
+                  </span>
                 )}
-                <span className="w-24 text-right font-semibold tabular-nums">{formatear(v.total)}</span>
+                <span className="w-24 text-right font-semibold tabular-nums" data-testid="venta-total">
+                  {formatear(v.total)}
+                </span>
               </Link>
             </li>
           ))}
