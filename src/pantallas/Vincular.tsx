@@ -39,7 +39,10 @@ export default function Vincular() {
         const mensaje = e instanceof Error ? e.message : 'No se pudo comprobar la hoja'
         setComprobacion({
           estado: 'error',
-          mensaje: tipo === 'sin-conexion' ? 'Sin conexión con la hoja. Revisa el internet de la tablet.' : mensaje,
+          mensaje:
+            tipo === 'sin-conexion'
+              ? 'No se pudo conectar con la hoja. Revisa el internet de la tablet. Si hay internet, genera un enlace nuevo en la hoja (Casa Belén → Vincular tablet) y revisa que la aplicación web tenga acceso «Cualquier usuario».'
+              : mensaje,
           reintentable: tipo === 'sin-conexion' || tipo === 'tiempo' || tipo === 'respuesta' || tipo === 'interno',
         })
       })
