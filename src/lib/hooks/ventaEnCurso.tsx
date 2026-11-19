@@ -1,7 +1,7 @@
 import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from 'react'
 import type { LineaVenta, Producto, TipoCliente } from '../dominio/tipos'
 import { agregar, cambiarCantidad, quitar, recalcularPorTipoCliente, totalDe } from '../dominio/carrito'
-import { PRODUCTOS_POR_ID } from '../../data/catalogo'
+import { useCatalogo } from './catalogo'
 import { PREFIJO_ALMACENAMIENTO } from '../entorno'
 
 interface VentaEnCurso {
@@ -41,6 +41,7 @@ function leerGuardado(): Guardado {
 
 export function ProveedorVentaEnCurso({ children }: { children: ReactNode }) {
   const [estado, setEstado] = useState<Guardado>(leerGuardado)
+  const { porId } = useCatalogo()
 
   useEffect(() => {
     try {
@@ -57,7 +58,7 @@ export function ProveedorVentaEnCurso({ children }: { children: ReactNode }) {
       cambiarTipoCliente: (tipoCliente) =>
         setEstado((e) => ({
           tipoCliente,
-          lineas: recalcularPorTipoCliente(e.lineas, tipoCliente, (id) => PRODUCTOS_POR_ID.get(id)),
+          lineas: recalcularPorTipoCliente(e.lineas, tipoCliente, (id) => porId.get(id)),
         })),
       agregarProducto: (producto, opciones) =>
         setEstado((e) => ({ ...e, lineas: agregar(e.lineas, producto, e.tipoCliente, opciones) })),
@@ -66,7 +67,7 @@ export function ProveedorVentaEnCurso({ children }: { children: ReactNode }) {
       quitarLinea: (indice) => setEstado((e) => ({ ...e, lineas: quitar(e.lineas, indice) })),
       vaciar: () => setEstado({ tipoCliente: 'general', lineas: [] }),
     }),
-    [estado],
+    [estado, porId],
   )
 
   return <Contexto.Provider value={valor}>{children}</Contexto.Provider>

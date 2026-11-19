@@ -1,6 +1,5 @@
 import { useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { CATEGORIAS, PRODUCTOS } from '../data/catalogo'
 import { Modal } from '../componentes/Modal'
 import { TecladoMonto, textoACentavos } from '../componentes/TecladoMonto'
 import {
@@ -14,30 +13,45 @@ import {
   opcion,
   textoError,
 } from '../componentes/estilos'
-import type { Producto, TipoCliente } from '../lib/dominio/tipos'
+import type { Existencias, Producto, TipoCliente } from '../lib/dominio/tipos'
 import { formatear } from '../lib/dominio/dinero'
 import { dentroDeRango, precioDeLista } from '../lib/dominio/precios'
 import { piezasDe, subtotal } from '../lib/dominio/carrito'
 import { useVentaEnCurso } from '../lib/hooks/ventaEnCurso'
+import { useCatalogo } from '../lib/hooks/catalogo'
+import { useExistencias } from '../lib/hooks/existencias'
+import {
+  claveExistencia,
+  existenciaDeProducto,
+  formatearCantidad,
+  lineasSinExistencia,
+  textoExistencia,
+  type Existencia,
+} from '../lib/dominio/existencias'
 import { normalizarBusqueda } from '../lib/formato'
 
 export default function Vender() {
   const venta = useVentaEnCurso()
-  const [categoriaId, setCategoriaId] = useState(CATEGORIAS[0]!.id)
+  const { categorias, productos } = useCatalogo()
+  const existencias = useExistencias()
+  const [elegida, setCategoriaId] = useState(categorias[0]?.id ?? '')
   const [busqueda, setBusqueda] = useState('')
   const [eligiendoVariante, setEligiendoVariante] = useState<Producto | null>(null)
   const [capturandoPrecio, setCapturandoPrecio] = useState<Producto | null>(null)
 
+  // Si la hoja quitó la categoría elegida, se muestra la primera.
+  const categoriaId = categorias.some((c) => c.id === elegida) ? elegida : (categorias[0]?.id ?? '')
+
   const visibles = useMemo(() => {
     const q = normalizarBusqueda(busqueda)
     if (q) {
-      const nombreCategoria = new Map(CATEGORIAS.map((c) => [c.id, normalizarBusqueda(c.nombre)]))
-      return PRODUCTOS.filter((p) =>
+      const nombreCategoria = new Map(categorias.map((c) => [c.id, normalizarBusqueda(c.nombre)]))
+      return productos.filter((p) =>
         `${normalizarBusqueda(p.nombre)} ${nombreCategoria.get(p.categoriaId)}`.includes(q),
       )
     }
-    return PRODUCTOS.filter((p) => p.categoriaId === categoriaId)
-  }, [busqueda, categoriaId])
+    return productos.filter((p) => p.categoriaId === categoriaId)
+  }, [busqueda, categoriaId, categorias, productos])
 
   function tocarProducto(producto: Producto) {
     if (producto.variantes?.length) return setEligiendoVariante(producto)
@@ -59,7 +73,7 @@ export default function Vender() {
           />
           {!busqueda && (
             <div className="flex flex-wrap gap-2">
-              {CATEGORIAS.map((c) => (
+              {categorias.map((c) => (
                 <button
                   key={c.id}
                   type="button"
@@ -88,9 +102,14 @@ export default function Vender() {
                   onClick={() => tocarProducto(p)}
                   className="flex min-h-24 flex-col justify-between rounded-xl border border-linea bg-vela p-3 text-left text-espresso hover:border-terracota-500 active:border-terracota-500 active:bg-terracota-50"
                 >
-                  <span className="text-sm leading-snug">{p.nombre}</span>
-                  <span className="mt-2 text-sm font-semibold text-terracota-600">
-                    {etiquetaPrecio(p, venta.tipoCliente)}
+                  <span className="text-sm leading-snug" data-testid="producto-nombre">
+                    {p.nombre}
+                  </span>
+                  <span className="mt-2 flex flex-col items-start gap-1">
+                    <span className="text-sm font-semibold text-terracota-600" data-testid="producto-precio">
+                      {etiquetaPrecio(p, venta.tipoCliente)}
+                    </span>
+                    <EtiquetaExistencia existencia={existencias && existenciaDeProducto(existencias, p)} />
                   </span>
                 </button>
               ))}
@@ -100,7 +119,7 @@ export default function Vender() {
       </section>
 
       {/* ---------- Venta en curso ---------- */}
-      <Carrito />
+      <Carrito existencias={existencias} />
 
       {eligiendoVariante && (
         <Modal titulo={eligiendoVariante.nombre} onCerrar={() => setEligiendoVariante(null)}>
@@ -110,13 +129,16 @@ export default function Vender() {
               <button
                 key={v}
                 type="button"
-                className={botonSecundario}
+                data-testid="variante"
+                data-variante={v}
+                className={`${botonSecundario} flex flex-col items-center gap-1`}
                 onClick={() => {
                   venta.agregarProducto(eligiendoVariante, { variante: v })
                   setEligiendoVariante(null)
                 }}
               >
-                {v}
+                <span>{v}</span>
+                <EtiquetaExistencia existencia={existencias?.[claveExistencia(eligiendoVariante, v)] ?? null} />
               </button>
             ))}
           </div>
@@ -134,6 +156,20 @@ export default function Vender() {
         />
       )}
     </div>
+  )
+}
+
+/** «Quedan 3» discreto; «Sin existencias» como aviso. Nada si la hoja no la conoce. */
+function EtiquetaExistencia({ existencia }: { existencia: Existencia | null }) {
+  if (!existencia) return null
+  const agotado = existencia.cantidad <= 0
+  return (
+    <span
+      data-testid="producto-existencia"
+      className={agotado ? etiquetaAviso : 'text-xs font-normal text-barro'}
+    >
+      {textoExistencia(existencia)}
+    </span>
   )
 }
 
@@ -219,10 +255,15 @@ function CapturaPrecio({
 
 // ---------------------------------------------------------------------------
 
-function Carrito() {
+function Carrito({ existencias }: { existencias: Existencias | null }) {
   const venta = useVentaEnCurso()
+  const { porId } = useCatalogo()
   const navegar = useNavigate()
   const [confirmarVaciar, setConfirmarVaciar] = useState(false)
+  const faltan = useMemo(
+    () => (existencias ? lineasSinExistencia(venta.lineas, existencias, (id) => porId.get(id)) : new Map<number, Existencia>()),
+    [venta.lineas, existencias, porId],
+  )
 
   return (
     <aside className="flex min-h-0 flex-col border-t border-linea bg-vela md:border-l md:border-t-0">
@@ -275,6 +316,15 @@ function Carrito() {
                         </span>
                       )}
                     </p>
+                    {faltan.has(i) && (
+                      <p className="mt-1">
+                        <span className={etiquetaAviso} data-testid="linea-sin-existencia">
+                          {faltan.get(i)!.cantidad <= 0
+                            ? 'Sin existencias según la hoja'
+                            : `Según la hoja solo quedan ${formatearCantidad(faltan.get(i)!)}`}
+                        </span>
+                      </p>
+                    )}
                   </div>
                   <p className="shrink-0 text-sm font-semibold tabular-nums" data-testid="linea-subtotal">
                     {formatear(subtotal(l))}

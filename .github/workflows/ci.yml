@@ -13,3 +13,11 @@ jobs:
           node-version: '22'
       - run: npm ci --no-audit --no-fund
       - run: npm run build
+      # El catálogo inicial de la hoja debe salir del catálogo de la app.
+      - name: Catálogo inicial de la hoja al día
+        run: |
+          npm run catalogo:hoja
+          git diff --exit-code apps-script/CatalogoInicial.gs || {
+            echo "::error::apps-script/CatalogoInicial.gs no coincide con src/data/catalogo.ts. Corre npm run catalogo:hoja y súbelo."
+            exit 1
+          }
