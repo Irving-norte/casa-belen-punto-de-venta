@@ -35,7 +35,12 @@ var FORMATO_FECHA = 'dd/mm/yyyy hh:mm';
 var UNIDAD_POR_DEFECTO = 'pieza';
 
 /** Propiedades del script (no visibles en la hoja compartida). */
-var PROP = { entorno: 'ENTORNO', clave: 'CLAVE_TABLET', urlScript: 'URL_SCRIPT' };
+var PROP = {
+  entorno: 'ENTORNO',
+  clave: 'CLAVE_TABLET',
+  urlScript: 'URL_SCRIPT',
+  ultimaSincronizacion: 'ULTIMA_SINCRONIZACION',
+};
 
 var TABLAS = {
   productos: {
@@ -134,6 +139,10 @@ function menuPrepararHoja() {
 function menuRegistrarEntradasYConteos() {
   var ui = SpreadsheetApp.getUi();
   if (!entornoDeLaHoja()) return ui.alert('Primero usa Casa Belén → Preparar hoja.');
+  var aviso = avisoDeConteo(new Date());
+  if (aviso && ui.alert('Registrar conteos', aviso, ui.ButtonSet.YES_NO) !== ui.Button.YES) {
+    return ui.alert('No se registró nada. Lo capturado sigue en la hoja.');
+  }
   var r = registrarEntradasYConteos();
   var partes = [];
   partes.push(r.entradas + (r.entradas === 1 ? ' entrada registrada' : ' entradas registradas'));
@@ -301,6 +310,7 @@ function sincronizar(datos, base) {
   var ventas = registrarVentas(lista(datos.ventas), catalogo, unidades, ahora);
   var gastos = registrarGastos(lista(datos.gastos), ahora);
   var cortes = registrarCortes(lista(datos.cajas), ahora);
+  PropertiesService.getScriptProperties().setProperty(PROP.ultimaSincronizacion, String(Date.now()));
 
   return Object.assign({}, base, {
     generadoEn: Date.now(),
@@ -740,6 +750,44 @@ function calcularExistencias() {
     resultado[clave] = { cantidad: redondear(sumas[clave]), unidad: texto(f[3]) || UNIDAD_POR_DEFECTO };
   });
   return resultado;
+}
+
+/**
+ * Aviso antes de registrar conteos: cuándo sincronizó la tablet por última
+ * vez. Un conteo compara contra lo que dice la hoja; una venta que la tablet
+ * aún no sube se descontaría dos veces (en el ajuste y al subir). Regresa ''
+ * si no hay ningún conteo capturado (las entradas solo suman: no necesitan
+ * aviso).
+ */
+function avisoDeConteo(ahora) {
+  var hayConteo = leerTabla('existencias').filas.some(function (f) { return texto(f[8]) !== ''; });
+  if (!hayConteo) return '';
+  var ultima = Number(PropertiesService.getScriptProperties().getProperty(PROP.ultimaSincronizacion));
+  var cuando = ultima
+    ? 'La tablet se sincronizó por última vez ' + describirMomento(new Date(ultima), ahora) + '.\n\n' +
+      'Si vendió algo después y no lo ha subido, contesta «No» y espera a que la tablet diga «Hoja al día».'
+    : 'La tablet todavía no se ha sincronizado con esta hoja.\n\n' +
+      'Si ya vendió algo, contesta «No», vincúlala y espera a que diga «Hoja al día».';
+  return cuando + ' Si no, esa venta se descontaría dos veces.\n\n¿Registrar los conteos?';
+}
+
+/** «hoy a las 7:42 p. m. (hace 3 min)», «ayer a las 9:05 a. m.» o «el 18/11/2026 a la 1:30 p. m.». */
+function describirMomento(fecha, ahora) {
+  var dia = function (d) { return Utilities.formatDate(d, ZONA_HORARIA, 'yyyy-MM-dd'); };
+  var hm = Utilities.formatDate(fecha, ZONA_HORARIA, 'HH:mm').split(':');
+  var h = Number(hm[0]);
+  var h12 = (h + 11) % 12 + 1;
+  var reloj = (h12 === 1 ? 'a la ' : 'a las ') + h12 + ':' + hm[1] + (h < 12 ? ' a. m.' : ' p. m.');
+  if (dia(fecha) === dia(ahora)) {
+    var minutos = Math.max(0, Math.floor((ahora.getTime() - fecha.getTime()) / 60000));
+    var hace = minutos < 1 ? 'hace menos de un minuto'
+      : minutos < 60 ? 'hace ' + minutos + ' min'
+      : 'hace ' + Math.floor(minutos / 60) + ' h';
+    return 'hoy ' + reloj + ' (' + hace + ')';
+  }
+  if (dia(fecha) === dia(new Date(ahora.getTime() - 24 * 3600 * 1000))) return 'ayer ' + reloj;
+  var d = dia(fecha).split('-');
+  return 'el ' + d[2] + '/' + d[1] + '/' + d[0] + ' ' + reloj;
 }
 
 /**
