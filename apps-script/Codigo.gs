@@ -15,6 +15,8 @@
  * Reglas:
  *  - Las existencias nunca se escriben a mano: son la suma de la pestaña
  *    Movimientos (ventas restan; entradas y conteos se registran con el menú).
+ *    Si alguien escribe encima de la columna Existencia, el script vuelve a
+ *    poner la fórmula en la siguiente sincronización.
  *  - Todo lo que sube la tablet lleva un ID: si llega dos veces, no se duplica.
  *  - El dinero llega en centavos (enteros) y se escribe en pesos.
  */
@@ -27,6 +29,7 @@ var URL_APP = {
 };
 
 var ZONA_HORARIA = 'America/Mexico_City';
+var CONFIGURACION_REGIONAL = 'es_MX';
 var FORMATO_DINERO = '$#,##0.00';
 var FORMATO_FECHA = 'dd/mm/yyyy hh:mm';
 var UNIDAD_POR_DEFECTO = 'pieza';
@@ -344,6 +347,7 @@ function prepararHoja(entorno) {
 
   var libro = SpreadsheetApp.getActiveSpreadsheet();
   libro.setSpreadsheetTimeZone(ZONA_HORARIA);
+  libro.setSpreadsheetLocale(CONFIGURACION_REGIONAL);
 
   ORDEN_TABLAS.forEach(function (clave, i) {
     var t = TABLAS[clave];
@@ -630,20 +634,69 @@ function asegurarExistencias(catalogo) {
       nuevas.push([clave, nombre, v, unidadInicial(p.articulo)]);
     });
   });
-  if (!nuevas.length) return 0;
 
-  var primera = h.getLastRow() + 1;
-  escribirFilas(h, nuevas.map(function (n, i) {
-    var r = primera + i;
-    return [
-      celda(n[0]), celda(n[1]), celda(n[2]), n[3],
-      '=SUMIF(Movimientos!D:D,A' + r + ',Movimientos!G:G)',
-      '',
-      '=IF(F' + r + '="","",IF(E' + r + '<=F' + r + ',"Reabastecer",""))',
-      '', '', '',
-    ];
-  }));
+  if (nuevas.length) {
+    var primera = h.getLastRow() + 1;
+    escribirFilas(h, nuevas.map(function (n, i) {
+      var f = formulasDeExistencia(primera + i);
+      return [celda(n[0]), celda(n[1]), celda(n[2]), n[3], f.existencia, '', f.estado, '', '', ''];
+    }));
+  }
+  repararFormulasExistencias();
   return nuevas.length;
+}
+
+/**
+ * Fórmulas de Existencia (columna E) y Estado (columna G) del renglón r.
+ *
+ * Van con «;» entre argumentos: así las acepta la hoja en cualquier
+ * configuración regional. En México la cambia sola a «,»; en España (y otros
+ * países con coma decimal) una «,» es error de análisis (#ERROR!).
+ */
+function formulasDeExistencia(r) {
+  return {
+    existencia: '=SUMIF(Movimientos!D:D;A' + r + ';Movimientos!G:G)',
+    estado: '=IF(F' + r + '="";"";IF(E' + r + '<=F' + r + ';"Reabastecer";""))',
+  };
+}
+
+/**
+ * Vuelve a poner las fórmulas de Existencia y Estado si a algún renglón le
+ * faltan, tienen error (#ERROR!, #REF!…) o apuntan a otro renglón; p. ej. si
+ * alguien escribió un número encima o la hoja cambió de configuración
+ * regional. No toca Mínimo, Entrada, Conteo ni Nota. Regresa cuántos
+ * renglones estaban mal.
+ */
+function repararFormulasExistencias() {
+  var h = hoja('existencias');
+  var n = h.getLastRow() - 1;
+  if (n < 1) return 0;
+  var rango = h.getRange(2, 5, n, 3); // E:G
+  var formulas = rango.getFormulas();
+  var valores = rango.getValues();
+  var esperadas = [];
+  var malas = 0;
+  for (var i = 0; i < n; i++) {
+    var f = formulasDeExistencia(i + 2);
+    esperadas.push(f);
+    var bien = mismaFormula(formulas[i][0], f.existencia) && typeof valores[i][0] === 'number' &&
+      mismaFormula(formulas[i][2], f.estado) && !esError(valores[i][2]);
+    if (!bien) malas++;
+  }
+  if (!malas) return 0;
+  h.getRange(2, 5, n, 1).setValues(esperadas.map(function (f) { return [f.existencia]; }));
+  h.getRange(2, 7, n, 1).setValues(esperadas.map(function (f) { return [f.estado]; }));
+  return malas;
+}
+
+/** Compara fórmulas sin importar «,» o «;», espacios ni mayúsculas. */
+function mismaFormula(a, b) {
+  var normal = function (f) { return String(f).replace(/\s+/g, '').replace(/;/g, ',').toUpperCase(); };
+  return normal(a) === normal(b);
+}
+
+function esError(valor) {
+  return typeof valor === 'string' && valor.charAt(0) === '#';
 }
 
 function unidadInicial(articulo) {
@@ -745,6 +798,7 @@ function registrarEntradasYConteos() {
 
     escribirFilas(hoja('movimientos'), movimientos);
     if (cambio) t.hoja.getRange(2, 8, captura.length, 3).setValues(captura);
+    repararFormulasExistencias();
     return r;
   });
 }
