@@ -67,12 +67,20 @@ dos cosas:
 | Para… | En la hoja |
 |---|---|
 | Registrar mercancía que llegó | Existencias → columna **Entrada** → Casa Belén → Registrar entradas y conteos |
-| Corregir con un conteo físico | Existencias → columna **Conteo** → Casa Belén → Registrar entradas y conteos (registra la diferencia como ajuste) |
+| Corregir con un conteo físico | Existencias → columna **Conteo** → Casa Belén → Registrar entradas y conteos (registra la diferencia como ajuste). Antes de registrar, la hoja dice cuándo sincronizó la tablet por última vez. |
 | Cambiar un precio o un nombre | Productos → edita la celda. La tablet lo recibe en su siguiente sincronización (o con «Sincronizar ahora»). |
 | Agregar un producto | Productos → renglón nuevo con Categoría, Nombre y precio; deja el **ID vacío** (lo pone el script). |
 | Dejar de vender algo | Productos → **Activo = No**. No borres renglones: las ventas pasadas los usan. |
 | Ver si algo tiene errores | Casa Belén → Revisar productos |
 | Ver qué falta reabastecer | Existencias → columna **Mínimo**; «Estado» dice «Reabastecer» al llegar a ese número |
+
+**Regla de conteo.** Un conteo compara lo que contaste contra lo que dice la
+hoja en ese momento. Si la tablet tiene una venta sin subir, esa venta se
+descontaría dos veces (en el ajuste y al subir). Por eso: cuenta con la
+tablet en **«Hoja al día»** y no vendas entre que cuentas y le das
+*Registrar*. Lo más fácil es contar al cerrar, después del corte. Si algo
+queda mal, vuelve a contar ese producto: el conteo deja la existencia en lo
+que contaste. Las entradas solo suman: se registran a cualquier hora.
 
 Las columnas **Existencia** y **Estado** son fórmulas (la suma de
 Movimientos): no escribas en ellas. Si alguien escribe encima o aparece
