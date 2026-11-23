@@ -1,5 +1,6 @@
 import { NavLink, Route, Routes } from 'react-router-dom'
 import AvisoActualizacion from './componentes/AvisoActualizacion'
+import BotonImpresora from './componentes/BotonImpresora'
 import IndicadorHoja from './componentes/IndicadorHoja'
 import { useCajaAbierta } from './lib/hooks/useCaja'
 import { formatearHora } from './lib/formato'
@@ -64,6 +65,7 @@ export default function App() {
         )}
 
         <div className="ml-auto flex items-center gap-3 text-xs text-barro">
+          <BotonImpresora />
           <IndicadorHoja />
           {caja && <span data-testid="caja-abierta">Caja abierta desde {formatearHora(caja.abiertaEn)}</span>}
         </div>

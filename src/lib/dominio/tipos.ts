@@ -82,6 +82,12 @@ export interface Venta {
   pagos: Pago[]
   /** Efectivo que entregó el cliente de más y se le regresó. */
   cambio: number
+  /** Última vez que se imprimió su ticket (solo en la tablet; no va a la hoja). */
+  ticketImpresoEn?: number
+  /**
+   * Solo en ventas de cuando el ticket se mandaba por WhatsApp. Ya no se
+   * llenan; se siguen quitando al subir para que el teléfono nunca salga.
+   */
   telefonoCliente?: string
   ticketEnviadoEn?: number
   sincronizada: 0 | 1

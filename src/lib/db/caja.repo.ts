@@ -69,11 +69,9 @@ export async function guardarVenta(datos: DatosVenta): Promise<Venta> {
   })
 }
 
-export async function marcarTicketEnviado(ventaId: string, telefono?: string): Promise<void> {
-  await db.ventas.update(ventaId, {
-    ticketEnviadoEn: Date.now(),
-    ...(telefono ? { telefonoCliente: telefono } : {}),
-  })
+/** Solo anota la hora: la venta ya está cerrada y no cambia. */
+export async function marcarTicketImpreso(ventaId: string): Promise<void> {
+  await db.ventas.update(ventaId, { ticketImpresoEn: Date.now() })
 }
 
 export async function registrarGasto(concepto: string, monto: number, nota?: string): Promise<Gasto> {
