@@ -85,8 +85,9 @@ debe instalarse desde Chrome: Samsung Internet no tiene Bluetooth clásico.
 **Conectarla (una vez):**
 1. Prender la impresora y emparejarla en **Ajustes › Bluetooth** de la tablet
    (si pide clave, suele ser 0000 o 1234).
-2. En la app, **Imprimir ticket** (o «Conectar») → **Buscar impresora** y
-   elegirla de la lista de Chrome. Se recuerda: no hay que volver a elegirla.
+2. En la app, el botón **Sin impresora** del encabezado (funciona sin abrir
+   caja) o **Imprimir ticket** → **Buscar impresora**, y elegirla de la lista
+   de Chrome. Se recuerda: no hay que volver a elegirla.
 3. **Imprimir prueba** en el mismo panel (no es una venta). Si los acentos
    salen como símbolos, elegir «Sin acentos»; si la regla de números no cabe en
    un renglón, elegir «42 letras».
