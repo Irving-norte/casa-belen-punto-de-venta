@@ -11,7 +11,7 @@ export default function Ventas({ caja }: { caja: Caja }) {
   if (!ventas) return null
 
   const total = ventas.reduce((s, v) => s + v.total, 0)
-  const sinTicket = ventas.filter((v) => !v.ticketEnviadoEn).length
+  const sinTicket = ventas.filter((v) => !v.ticketImpresoEn).length
 
   return (
     <div className="mx-auto h-full max-w-4xl overflow-y-auto p-4">
@@ -38,7 +38,7 @@ export default function Ventas({ caja }: { caja: Caja }) {
                   {[...new Set(v.pagos.map((p) => NOMBRE_FORMA[p.forma]))].join(' + ')}
                   {v.tipoCliente === 'alumno' && <span className="text-barro"> · Alumno</span>}
                 </span>
-                {!v.ticketEnviadoEn && (
+                {!v.ticketImpresoEn && (
                   <span className={etiquetaAviso} data-testid="venta-sin-ticket">
                     Sin ticket
                   </span>

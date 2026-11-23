@@ -10,8 +10,8 @@ import type { Entorno } from '../entorno'
  */
 export const VERSION_PROTOCOLO = 1
 
-/** Lo que se sube de cada registro. El teléfono del cliente NO sale de la tablet. */
-export type VentaParaHoja = Omit<Venta, 'sincronizada' | 'telefonoCliente' | 'ticketEnviadoEn'>
+/** Lo que se sube de cada registro. Lo del ticket (y el teléfono de ventas viejas) NO sale de la tablet. */
+export type VentaParaHoja = Omit<Venta, 'sincronizada' | 'ticketImpresoEn' | 'telefonoCliente' | 'ticketEnviadoEn'>
 export type GastoParaHoja = Omit<Gasto, 'sincronizado'>
 export type CajaParaHoja = Omit<Caja, 'sincronizada'>
 

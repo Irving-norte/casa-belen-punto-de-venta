@@ -23,7 +23,8 @@ Pruebas end-to-end (Playwright): [casa-belen-punto-de-venta-qa](https://github.c
   confirmar, pero no bloquea.
 - **Cobro** en efectivo, tarjeta, transferencia o mixto. El efectivo
   calcula el cambio; tarjeta y transferencia solo se registran.
-- **Ticket por WhatsApp**: abre WhatsApp con el ticket escrito.
+- **Ticket impreso** en una impresora térmica Bluetooth de 80 mm (ver
+  [Impresora de tickets](#impresora-de-tickets)). Ya no se usa WhatsApp.
 - **Gastos del día** (bolsas, cajas…) que salen del efectivo.
 - **Corte de caja**: efectivo esperado = fondo + ventas en efectivo − gastos,
   contra el efectivo contado.
@@ -49,7 +50,9 @@ Pruebas end-to-end (Playwright): [casa-belen-punto-de-venta-qa](https://github.c
   internet…») que lleva a la pantalla de la hoja.
 - **Entornos separados**: la app de producción solo sincroniza con la hoja
   real y la de QA solo con la de pruebas (lo revisan la app y el script).
-- **Privacidad**: el teléfono del cliente del ticket no se sube a la hoja.
+- **Privacidad**: la tablet no pide datos del cliente. Lo del ticket (cuándo se
+  imprimió) se queda en la tablet; el teléfono de ventas de cuando había
+  WhatsApp nunca se sube.
 
 ## Stack
 
@@ -67,6 +70,41 @@ npm run catalogo:hoja  # regenera apps-script/CatalogoInicial.gs desde src/data/
 Cada `git push` a `main` corre `.github/workflows/desplegar.yml`
 (typecheck, build y publicación). En cada Pull Request, `ci.yml` corre el
 typecheck, el build y revisa que `apps-script/CatalogoInicial.gs` esté al día.
+
+## Impresora de tickets
+
+Al terminar una venta, la pantalla del ticket tiene **Imprimir ticket**. El
+ticket sale en papel de 80 mm con el diseño de la tienda: encabezado centrado,
+productos en el orden de la venta (cantidad, nombre completo, precio por pieza
+e importe), total grande, pagos con efectivo recibido y cambio, y pie de
+gracias. La vista previa de la pantalla es exactamente lo que se imprime.
+
+**Requisitos:** Google Chrome 138 o más nuevo en la tablet (Android). La app
+debe instalarse desde Chrome: Samsung Internet no tiene Bluetooth clásico.
+
+**Conectarla (una vez):**
+1. Prender la impresora y emparejarla en **Ajustes › Bluetooth** de la tablet
+   (si pide clave, suele ser 0000 o 1234).
+2. En la app, **Imprimir ticket** (o «Conectar») → **Buscar impresora** y
+   elegirla de la lista de Chrome. Se recuerda: no hay que volver a elegirla.
+3. **Imprimir prueba** en el mismo panel (no es una venta). Si los acentos
+   salen como símbolos, elegir «Sin acentos»; si la regla de números no cabe en
+   un renglón, elegir «42 letras».
+
+**Cómo funciona:** `src/lib/dominio/ticket.ts` arma los renglones (48 letras;
+nombres largos pasan al renglón siguiente, importes a la derecha);
+`src/lib/impresora/escpos.ts` los convierte a ESC/POS con la página de códigos
+PC850 (acentos, ñ, ×, ½) y corta el papel; `src/lib/impresora/impresora.ts`
+los manda:
+- **Bluetooth clásico** (puerto serie SPP, casi todas las impresoras de
+  tickets) con Web Serial. Chrome recuerda el permiso.
+- **Bluetooth LE** con Web Bluetooth, para modelos que solo hablan BLE
+  («¿No aparece? Buscar por Bluetooth LE»). Chrome para Android no recuerda
+  este permiso: se elige otra vez al reabrir la app.
+
+Imprimir no cambia la venta: solo anota en la tablet a qué hora se imprimió
+(«Sin ticket» en Ventas del día si nunca se imprimió). Si la impresora no
+responde, la app lo dice y se puede reintentar.
 
 ## Entorno de QA
 
@@ -102,9 +140,12 @@ src/
                        se recibe de la hoja (hoja.repo.ts).
     sincronizacion/  ← Formato de los mensajes con la hoja, llamada al
                        script, validación y el ciclo de sincronización.
+    impresora/       ← Ticket impreso: letras PC850, comandos ESC/POS y
+                       conexión Bluetooth (Web Serial y Web Bluetooth).
     hooks/           ← Conecta dominio y base con React (catálogo vigente,
-                       existencias, sincronización, venta en curso).
-  componentes/       ← Teclado numérico, modal, indicador de la hoja, estilos.
+                       existencias, sincronización, venta en curso, impresora).
+  componentes/       ← Teclado numérico, modal, indicador de la hoja, panel de
+                       la impresora, estilos.
   pantallas/         ← Apertura, Vender, Cobrar, Ticket, Ventas, Gastos, Corte,
                        Vincular, Sincronización.
 ```

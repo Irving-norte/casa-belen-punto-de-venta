@@ -90,8 +90,8 @@ export async function actualizarEstado(cambio: Partial<EstadoSincronizacion>): P
 // ---------------------------------------------------------------------------
 
 function ventaParaHoja(v: Venta): VentaParaHoja {
-  // Sin teléfono del cliente: la hoja es compartida.
-  const { sincronizada: _s, telefonoCliente: _t, ticketEnviadoEn: _e, ...resto } = v
+  // Lo del ticket se queda en la tablet (y el teléfono de ventas viejas, nunca sale).
+  const { sincronizada: _s, ticketImpresoEn: _i, telefonoCliente: _t, ticketEnviadoEn: _e, ...resto } = v
   return resto
 }
 
